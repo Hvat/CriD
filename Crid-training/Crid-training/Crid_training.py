@@ -44,6 +44,17 @@ rates = mt5.copy_rates_from("ED Splice", mt5.TIMEFRAME_M30, utc_from, EXPORT_BAR
 # finish connecting to the MetaTrader 5 terminal
 mt5.shutdown()
 
+# Normalise Data
+def normalise_vector(data_vector, d1, d2, size):
+	a_min = data_vector.min()
+	a_max = data_vector.max()
+
+	data = []
+	for i in range(size):
+		a = (((data_vector[i] - a_min)*(d2 - d1))/(a_max - a_min)) + d1
+		data.append(a)
+	return data
+
 # Data generation
 def generate_data(data_source, input, output):
 
@@ -55,6 +66,8 @@ def generate_data(data_source, input, output):
 	raw_data = []
 	for i in range(start, end):
 	   input_output = values[(i - input):(i + output)]
+	   vector = np.array(input_output)
+	   input_output = normalise_vector(vector, -1, 1, SIZE)
 	   raw_data.append(list(input_output))
 	
 	input_columns = []
@@ -64,9 +77,6 @@ def generate_data(data_source, input, output):
 	output_columns = []
 	for i in range(output):
 		output_columns.append("output_{}".format(i))
-
-	scaler = MinMaxScaler(feature_range=(-1, 1))
-	raw_data = scaler.fit_transform(raw_data)
 
 	df = pd.DataFrame(raw_data, columns = (input_columns + output_columns), dtype = np.float32)
 
