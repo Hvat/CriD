@@ -104,3 +104,22 @@ def create_model(input_):
 # Create the model
 z = create_model(input_)
 
+# Train
+lr_schedule = C.learning_rate_schedule(LEARNING_RATE, C.UnitType.minibatch)
+loss = C.squared_error(z, output_)
+# Use adam optimizer
+learner = C.adam(z.parameters, lr_schedule, momentum=0.9)
+trainer = C.Trainer(z, loss, [learner])
+datamap = {input_: X, output_: Y}
+losses = []
+# Training
+start = time.time()
+for i in range(EPOCHS):
+   trainer.train_minibatch(datamap)
+   loss = trainer.previous_minibatch_loss_average
+   losses.append(loss)
+   if i % 10 == 0:
+       print("epoch: {}, loss: {:.6f}".format(i, loss))
+   if LOSS>=loss: break
+print("Training took {:.1f} sec".format(time.time() - start))
+
