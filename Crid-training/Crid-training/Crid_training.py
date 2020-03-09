@@ -43,3 +43,43 @@ rates = mt5.copy_rates_from("ED Splice", mt5.TIMEFRAME_M30, utc_from, EXPORT_BAR
 
 # finish connecting to the MetaTrader 5 terminal
 mt5.shutdown()
+
+# Data generation
+def generate_data(data_source, input, output):
+
+	values = data_source['close']
+	
+	start = input
+	end = len(values) - output
+
+	raw_data = []
+	for i in range(start, end):
+	   input_output = values[(i - input):(i + output)]
+	   raw_data.append(list(input_output))
+	
+	input_columns = []
+	for i in range(input):
+		input_columns.append("input_{}".format(i))
+
+	output_columns = []
+	for i in range(output):
+		output_columns.append("output_{}".format(i))
+
+	scaler = MinMaxScaler(feature_range=(-1, 1))
+	raw_data = scaler.fit_transform(raw_data)
+
+	df = pd.DataFrame(raw_data, columns = (input_columns + output_columns), dtype = np.float32)
+
+	X = df[input_columns]
+	Y = df[output_columns]
+
+	X = np.array(X)
+	Y = np.array(Y)
+
+	X = np.array([X])
+	Y = np.array([Y])
+
+	return X, Y
+
+X, Y = generate_data(rates, INPUT_DIM, OUTPUT_DIM)
+
