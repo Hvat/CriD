@@ -83,3 +83,24 @@ def generate_data(data_source, input, output):
 
 X, Y = generate_data(rates, INPUT_DIM, OUTPUT_DIM)
 
+# Input sequences
+input_ = C.sequence.input_variable(INPUT_DIM, np.float32)
+# Expected output
+output_ = C.sequence.input_variable(OUTPUT_DIM, np.float32)
+
+# Create the model for time series prediction
+def create_model(input_):
+	with C.layers.default_options(init=C.glorot_uniform()):
+		#---
+		a = C.layers.Dense(1152, activation= C.sin)(input_)
+		a = C.layers.Dense(1152, activation= C.sin)(a)
+		a = C.layers.Dense(1152, activation= C.sin)(a)
+		a = C.layers.Dense(1152, activation= C.sin)(a)
+		a = C.layers.Dropout(0.6)(a)
+		#---
+		g  = C.layers.Dense(2304, activation= C.sin)(a)
+		h = C.layers.Dense(OUTPUT_DIM)(g)
+		return h
+# Create the model
+z = create_model(input_)
+
