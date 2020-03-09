@@ -123,3 +123,14 @@ for i in range(EPOCHS):
    if LOSS>=loss: break
 print("Training took {:.1f} sec".format(time.time() - start))
 
+# Save model
+z.save("C:/Users/User/Documents/Models/model_gru.model")
+z.save("C:/Users/User/Documents/Models/model_gru.onnx", format = C.ModelFormat.ONNX)
+
+# Error graph output
+plt.plot(losses)
+plt.title('Loss function')
+plt.ylabel('Loss')
+plt.xlabel('Epochs')
+plt.show()
+#-------------------
